@@ -56,6 +56,7 @@ RUN useradd -ms /bin/bash frappe \
     && if [ "$(uname -m)" = "x86_64" ]; then export ARCH=amd64; fi \
     && downloaded_file=wkhtmltox_${WKHTMLTOPDF_VERSION}.${WKHTMLTOPDF_DISTRO}_${ARCH}.deb \
     && curl -sLO https://github.com/wkhtmltopdf/packaging/releases/download/$WKHTMLTOPDF_VERSION/$downloaded_file \
+    && test -f $downloaded_file && test -s $downloaded_file \
     && apt-get install -y ./$downloaded_file \
     && rm $downloaded_file \
     # Clean up
@@ -109,14 +110,20 @@ RUN apt-get update \
 
 # apps.json includes
 ARG APPS_JSON_BASE64
+ARG GIT_AUTH_TOKEN
 RUN if [ -n "${APPS_JSON_BASE64}" ]; then \
     mkdir /opt/frappe && echo "${APPS_JSON_BASE64}" | base64 -d > /opt/frappe/apps.json; \
   fi
 
 USER frappe
 
+# Configure git to use GIT_AUTH_TOKEN for private repositories
+RUN if [ -n "${GIT_AUTH_TOKEN}" ]; then \
+    git config --global url."https://${GIT_AUTH_TOKEN}@github.com/".insteadOf "https://github.com/"; \
+  fi
+
 ARG FRAPPE_BRANCH=version-15
-ARG FRAPPE_PATH=https://github.com/frappe/frappe
+ARG FRAPPE_PATH=https://github.com/presenxia-ai/frappe
 RUN export APP_INSTALL_ARGS="" && \
   if [ -n "${APPS_JSON_BASE64}" ]; then \
     export APP_INSTALL_ARGS="--apps_path=/opt/frappe/apps.json"; \
@@ -131,7 +138,10 @@ RUN export APP_INSTALL_ARGS="" && \
     /home/frappe/frappe-bench && \
   cd /home/frappe/frappe-bench && \
   echo "{}" > sites/common_site_config.json && \
-  find apps -mindepth 1 -path "*/.git" | xargs rm -fr
+  find apps -mindepth 1 -path "*/.git" | xargs rm -fr && \
+  if [ -n "${GIT_AUTH_TOKEN}" ]; then \
+    git config --global --unset url."https://${GIT_AUTH_TOKEN}@github.com/".insteadOf || true; \
+  fi
 
 FROM base AS backend
 
