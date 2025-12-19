@@ -4,6 +4,14 @@ FROM python:${PYTHON_VERSION}-slim-${DEBIAN_BASE} AS base
 
 COPY resources/nginx-template.conf /templates/nginx/frappe.conf.template
 COPY resources/nginx-entrypoint.sh /usr/local/bin/nginx-entrypoint.sh
+# Convert line endings to LF (fixes Windows CRLF issue) and ensure executable
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y dos2unix \
+    && dos2unix /usr/local/bin/nginx-entrypoint.sh 2>/dev/null || true \
+    && rm -rf /var/lib/apt/lists/* \
+    && chmod +x /usr/local/bin/nginx-entrypoint.sh \
+    && test -f /usr/local/bin/nginx-entrypoint.sh || (echo "ERROR: nginx-entrypoint.sh not found!" && exit 1)
+
 
 ARG WKHTMLTOPDF_VERSION=0.12.6.1-3
 ARG WKHTMLTOPDF_DISTRO=bookworm
@@ -14,6 +22,7 @@ ENV PATH=${NVM_DIR}/versions/node/v${NODE_VERSION}/bin/:${PATH}
 RUN useradd -ms /bin/bash frappe \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
+    bash \
     curl \
     git \
     vim \
@@ -117,20 +126,24 @@ RUN if [ -n "${APPS_JSON_BASE64}" ]; then \
 
 USER frappe
 
-# Configure git to use GIT_AUTH_TOKEN for private repositories
-RUN if [ -n "${GIT_AUTH_TOKEN}" ]; then \
-    git config --global url."https://${GIT_AUTH_TOKEN}@github.com/".insteadOf "https://github.com/"; \
-  fi
-
 ARG FRAPPE_BRANCH=version-15
 ARG FRAPPE_PATH=https://github.com/presenxia-ai/frappe
 RUN export APP_INSTALL_ARGS="" && \
   if [ -n "${APPS_JSON_BASE64}" ]; then \
     export APP_INSTALL_ARGS="--apps_path=/opt/frappe/apps.json"; \
   fi && \
+  if [ -n "${GIT_AUTH_TOKEN}" ] && [ "${GIT_AUTH_TOKEN}" != "" ]; then \
+    export FRAPPE_PATH_URL=$(echo "${FRAPPE_PATH}" | sed "s|https://github.com/|https://${GIT_AUTH_TOKEN}@github.com/|"); \
+    git config --global url."https://${GIT_AUTH_TOKEN}@github.com/".insteadOf "https://github.com/"; \
+  else \
+    export FRAPPE_PATH_URL="${FRAPPE_PATH}"; \
+  fi && \
+  echo ${GIT_AUTH_TOKEN} && \
+  echo ${FRAPPE_PATH} && \
+  echo ${FRAPPE_PATH_URL} && \
   bench init ${APP_INSTALL_ARGS}\
     --frappe-branch=${FRAPPE_BRANCH} \
-    --frappe-path=${FRAPPE_PATH} \
+    --frappe-path="${FRAPPE_PATH_URL}" \
     --no-procfile \
     --no-backups \
     --skip-redis-config-generation \

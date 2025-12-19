@@ -8,10 +8,6 @@
         "branch": "main"
     },
     {
-        "url": "https://github.com/presenxia-ai/frappe.git",
-        "branch": "version-15"
-    },
-    {
       "url": "https://github.com/presenxia-ai/erpnext.git",
       "branch": "version-15"
     }

@@ -5,16 +5,20 @@ services:
       configurator:
         condition: service_completed_successfully
         required: true
-    image: frappe/erpnext:v15.91.2
+    image: custom:2
     networks:
       default: null
     platform: linux/amd64
-    pull_policy: always
+    pull_policy: never
     restart: unless-stopped
     volumes:
       - type: volume
         source: sites
         target: /home/frappe/frappe-bench/sites
+        volume: {}
+      - type: volume
+        source: assets
+        target: /home/frappe/frappe-bench/sites/assets
         volume: {}
   configurator:
     command:
@@ -36,16 +40,20 @@ services:
       REDIS_CACHE: redis-cache:6379
       REDIS_QUEUE: redis-queue:6379
       SOCKETIO_PORT: "9000"
-    image: frappe/erpnext:v15.91.2
+    image: custom:2
     networks:
       default: null
     platform: linux/amd64
-    pull_policy: always
+    pull_policy: never
     restart: on-failure
     volumes:
       - type: volume
         source: sites
         target: /home/frappe/frappe-bench/sites
+        volume: {}
+      - type: volume
+        source: assets
+        target: /home/frappe/frappe-bench/sites/assets
         volume: {}
   frontend:
     command:
@@ -60,13 +68,13 @@ services:
     environment:
       BACKEND: backend:8000
       CLIENT_MAX_BODY_SIZE: 50m
-      FRAPPE_SITE_NAME_HEADER: $$host
+      FRAPPE_SITE_NAME_HEADER: uptrend
       PROXY_READ_TIMEOUT: "120"
       SOCKETIO: websocket:9000
       UPSTREAM_REAL_IP_ADDRESS: 127.0.0.1
       UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
       UPSTREAM_REAL_IP_RECURSIVE: "off"
-    image: frappe/erpnext:v15.91.2
+    image: custom:2
     networks:
       default: null
     platform: linux/amd64
@@ -75,12 +83,16 @@ services:
         target: 8080
         published: "8080"
         protocol: tcp
-    pull_policy: always
+    pull_policy: never
     restart: unless-stopped
     volumes:
       - type: volume
         source: sites
         target: /home/frappe/frappe-bench/sites
+        volume: {}
+      - type: volume
+        source: assets
+        target: /home/frappe/frappe-bench/sites/assets
         volume: {}
   queue-long:
     command:
@@ -92,16 +104,20 @@ services:
       configurator:
         condition: service_completed_successfully
         required: true
-    image: frappe/erpnext:v15.91.2
+    image: custom:2
     networks:
       default: null
     platform: linux/amd64
-    pull_policy: always
+    pull_policy: never
     restart: unless-stopped
     volumes:
       - type: volume
         source: sites
         target: /home/frappe/frappe-bench/sites
+        volume: {}
+      - type: volume
+        source: assets
+        target: /home/frappe/frappe-bench/sites/assets
         volume: {}
   queue-short:
     command:
@@ -113,16 +129,20 @@ services:
       configurator:
         condition: service_completed_successfully
         required: true
-    image: frappe/erpnext:v15.91.2
+    image: custom:2
     networks:
       default: null
     platform: linux/amd64
-    pull_policy: always
+    pull_policy: never
     restart: unless-stopped
     volumes:
       - type: volume
         source: sites
         target: /home/frappe/frappe-bench/sites
+        volume: {}
+      - type: volume
+        source: assets
+        target: /home/frappe/frappe-bench/sites/assets
         volume: {}
   redis-cache:
     image: redis:6.2-alpine
@@ -147,16 +167,20 @@ services:
       configurator:
         condition: service_completed_successfully
         required: true
-    image: frappe/erpnext:v15.91.2
+    image: custom:2
     networks:
       default: null
     platform: linux/amd64
-    pull_policy: always
+    pull_policy: never
     restart: unless-stopped
     volumes:
       - type: volume
         source: sites
         target: /home/frappe/frappe-bench/sites
+        volume: {}
+      - type: volume
+        source: assets
+        target: /home/frappe/frappe-bench/sites/assets
         volume: {}
   websocket:
     command:
@@ -166,16 +190,20 @@ services:
       configurator:
         condition: service_completed_successfully
         required: true
-    image: frappe/erpnext:v15.91.2
+    image: custom:2
     networks:
       default: null
     platform: linux/amd64
-    pull_policy: always
+    pull_policy: never
     restart: unless-stopped
     volumes:
       - type: volume
         source: sites
         target: /home/frappe/frappe-bench/sites
+        volume: {}
+      - type: volume
+        source: assets
+        target: /home/frappe/frappe-bench/sites/assets
         volume: {}
 networks:
   default:
@@ -185,18 +213,21 @@ volumes:
     name: frappe_docker_redis-queue-data
   sites:
     name: frappe_docker_sites
+  assets:
+    name: frappe_docker_assets
 x-backend-defaults:
   depends_on:
     configurator:
       condition: service_completed_successfully
-  image: frappe/erpnext:v15.91.2
-  pull_policy: always
+  image: custom:2
+  pull_policy: never
   restart: unless-stopped
   volumes:
     - sites:/home/frappe/frappe-bench/sites
+    - assets:/home/frappe/frappe-bench/sites/assets
 x-customizable-image:
-  image: frappe/erpnext:v15.91.2
-  pull_policy: always
+  image: custom:2
+  pull_policy: never
   restart: unless-stopped
 x-depends-on-configurator:
   depends_on:
