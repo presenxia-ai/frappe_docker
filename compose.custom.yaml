@@ -16,6 +16,10 @@ services:
         source: sites
         target: /home/frappe/frappe-bench/sites
         volume: {}
+      - type: bind
+        source: /mnt/c/Users/Qiany/erp/apps/
+        target: /home/frappe/frappe-bench/apps/
+      - logs:/home/frappe/frappe-bench/logs
       - type: volume
         source: assets
         target: /home/frappe/frappe-bench/sites/assets
@@ -51,6 +55,10 @@ services:
         source: sites
         target: /home/frappe/frappe-bench/sites
         volume: {}
+      - type: bind
+        source: /mnt/c/Users/Qiany/erp/apps/
+        target: /home/frappe/frappe-bench/apps/
+      - logs:/home/frappe/frappe-bench/logs
       - type: volume
         source: assets
         target: /home/frappe/frappe-bench/sites/assets
@@ -90,6 +98,10 @@ services:
         source: sites
         target: /home/frappe/frappe-bench/sites
         volume: {}
+      - type: bind
+        source: /mnt/c/Users/Qiany/erp/apps/
+        target: /home/frappe/frappe-bench/apps/
+      - logs:/home/frappe/frappe-bench/logs
       - type: volume
         source: assets
         target: /home/frappe/frappe-bench/sites/assets
@@ -115,6 +127,10 @@ services:
         source: sites
         target: /home/frappe/frappe-bench/sites
         volume: {}
+      - type: bind
+        source: /mnt/c/Users/Qiany/erp/apps/
+        target: /home/frappe/frappe-bench/apps/
+      - logs:/home/frappe/frappe-bench/logs
       - type: volume
         source: assets
         target: /home/frappe/frappe-bench/sites/assets
@@ -140,6 +156,10 @@ services:
         source: sites
         target: /home/frappe/frappe-bench/sites
         volume: {}
+      - type: bind
+        source: /mnt/c/Users/Qiany/erp/apps/
+        target: /home/frappe/frappe-bench/apps/
+      - logs:/home/frappe/frappe-bench/logs
       - type: volume
         source: assets
         target: /home/frappe/frappe-bench/sites/assets
@@ -178,6 +198,10 @@ services:
         source: sites
         target: /home/frappe/frappe-bench/sites
         volume: {}
+      - type: bind
+        source: /mnt/c/Users/Qiany/erp/apps/
+        target: /home/frappe/frappe-bench/apps/
+      - logs:/home/frappe/frappe-bench/logs
       - type: volume
         source: assets
         target: /home/frappe/frappe-bench/sites/assets
@@ -201,6 +225,7 @@ services:
         source: sites
         target: /home/frappe/frappe-bench/sites
         volume: {}
+      - logs:/home/frappe/frappe-bench/logs
       - type: volume
         source: assets
         target: /home/frappe/frappe-bench/sites/assets
@@ -213,6 +238,8 @@ volumes:
     name: frappe_docker_redis-queue-data
   sites:
     name: frappe_docker_sites
+  logs:
+    name: frappe_docker_logs
   assets:
     name: frappe_docker_assets
 x-backend-defaults:
@@ -224,6 +251,7 @@ x-backend-defaults:
   restart: unless-stopped
   volumes:
     - sites:/home/frappe/frappe-bench/sites
+    - logs:/home/frappe/frappe-bench/logs
     - assets:/home/frappe/frappe-bench/sites/assets
 x-customizable-image:
   image: custom:2

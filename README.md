@@ -1,53 +1,59 @@
-[![Build Stable](https://github.com/frappe/frappe_docker/actions/workflows/build_stable.yml/badge.svg)](https://github.com/frappe/frappe_docker/actions/workflows/build_stable.yml)
-[![Build Develop](https://github.com/frappe/frappe_docker/actions/workflows/build_develop.yml/badge.svg)](https://github.com/frappe/frappe_docker/actions/workflows/build_develop.yml)
 
 Everything about [Frappe](https://github.com/frappe/frappe) and [ERPNext](https://github.com/frappe/erpnext) in containers.
 
 # Getting Started
 
-**New to Frappe Docker?** Read the [Getting Started Guide](docs/getting-started.md) for a comprehensive overview of repository structure, development workflow, custom apps, Docker concepts, and quick start examples.
+open your Docker Desktop, open wsl2 terminal and cd to the path of 'frappe_docker'
 
-To get started you need [Docker](https://docs.docker.com/get-docker/), [docker-compose](https://docs.docker.com/compose/), and [git](https://docs.github.com/en/get-started/getting-started-with-git/set-up-git) setup on your machine. For Docker basics and best practices refer to Docker's [documentation](http://docs.docker.com).
+run below commands on wsl2
+`export APPS_JSON_BASE64=$(base64 -w 0 apps.json)`
 
-Once completed, chose one of the following two sections for next steps.
-
-### Try in Play With Docker
-
-To play in an already set up sandbox, in your browser, click the button below:
-
-<a href="https://labs.play-with-docker.com/?stack=https://raw.githubusercontent.com/frappe/frappe_docker/main/pwd.yml">
-  <img src="https://raw.githubusercontent.com/play-with-docker/stacks/master/assets/images/button.png" alt="Try in PWD"/>
-</a>
-
-### Try on your Dev environment
-
-First clone the repo:
+`export GIT_AUTH_TOKEN=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`
 
 ```sh
-git clone https://github.com/frappe/frappe_docker
-cd frappe_docker
+docker build \
+ --no-cache \
+ --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
+ --build-arg=GIT_AUTH_TOKEN=$GIT_AUTH_TOKEN \
+ --tag=custom:2 \
+ --file=images/custom/Containerfile .
 ```
 
-Then run: `docker compose -f pwd.yml up -d`
+```sh
+docker compose --env-file custom.env \
+    -f compose.yaml \
+    -f overrides/compose.redis.yaml \
+    -f overrides/compose.noproxy.yaml \
+    config > compose.custom.yaml
+```
 
-### To run on ARM64 architecture follow this instructions
+git clone all apps repos to `/mnt/c/Users/Qiany/erp/apps/`
+you can change this path on compose.custom.yaml for you local, so that you can update your code and directly reflect on the container and browser.
 
-After you clone the repo and `cd frappe_docker`, run this command to build multi-architecture images specifically for ARM64.
+build site “uptrend” or any name you like with AWS database _d1cf44f2f8d5d74e
+you can ignore the exception `Exception: Database _d1cf44f2f8d5d74e already exists` because we are going to use an existing database to keep the DB consistency for every developer.
+```sh
+docker compose exec backend bench new-site uptrend \
+  --db-name _d1cf44f2f8d5d74e \
+  --db-password 0TfpTglau9u9TYLd \
+  --mariadb-user-host-login-scope='%' \
+  --db-root-username admin \
+  --db-root-password zzdxczwl 
+```
+  
+When you create your container in first time, run ‘yarn install’ for apps/erpnext and apps/frappe.
+You don't need to run them if your apps/erpnext/node_modules and apps/frappe/node_modules exists
+```sh
+docker compose -f compose.custom.yaml exec backend bash -c "cd /home/frappe/frappe-bench/apps/frappe && yarn install"
+docker compose -f compose.custom.yaml exec backend bash -c "cd /home/frappe/frappe-bench/apps/erpnext && yarn install"
+```
 
-`docker buildx bake --no-cache --set "*.platform=linux/arm64"`
+build your project
+```sh
+docker compose exec frontend bench build 
+```
 
-and then
-
-- add `platform: linux/arm64` to all services in the `pwd.yml`
-- replace the current specified versions of erpnext image on `pwd.yml` with `:latest`
-
-Then run: `docker compose -f pwd.yml up -d`
-
-## Final steps
-
-Wait for 5 minutes for ERPNext site to be created or check `create-site` container logs before opening browser on port 8080. (username: `Administrator`, password: `admin`)
-
-If you ran in a Dev Docker environment, to view container logs: `docker compose -f pwd.yml logs -f create-site`. Don't worry about some of the initial error messages, some services take a while to become ready, and then they go away.
+you will see the site via  `localhost:8080`
 
 # Documentation
 
