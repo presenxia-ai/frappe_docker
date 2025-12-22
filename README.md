@@ -35,10 +35,10 @@ you can ignore the exception `Exception: Database _d1cf44f2f8d5d74e already exis
 ```sh
 docker compose exec backend bench new-site uptrend \
   --db-name _d1cf44f2f8d5d74e \
-  --db-password 0TfpTglau9u9TYLd \
+  --db-password <get it from Amber> \
   --mariadb-user-host-login-scope='%' \
   --db-root-username admin \
-  --db-root-password zzdxczwl 
+  --db-root-password <get it from Amber> 
 ```
   
 When you create your container in first time, run ‘yarn install’ for apps/erpnext and apps/frappe.
