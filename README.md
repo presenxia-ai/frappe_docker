@@ -8,7 +8,7 @@ open your Docker Desktop, open wsl2 terminal and cd to the path of 'frappe_docke
 run below commands on wsl2
 `export APPS_JSON_BASE64=$(base64 -w 0 apps.json)`
 
-`export GIT_AUTH_TOKEN=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`
+`export GIT_AUTH_TOKEN=<get it from Amber>`
 
 ```sh
 docker build \
