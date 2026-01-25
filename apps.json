@@ -1,9 +1,5 @@
 [
     {
-      "url": "https://github.com/presenxia-ai/mevinai_theme.git",
-      "branch": "main"
-    },
-    {
         "url": "https://github.com/presenxia-ai/custom_app.git",
         "branch": "main"
     },

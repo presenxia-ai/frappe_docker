@@ -3,22 +3,27 @@ Everything about [Frappe](https://github.com/frappe/frappe) and [ERPNext](https:
 
 # Getting Started
 
-open your Docker Desktop, open wsl2 terminal and cd to the path of 'frappe_docker'
+open your Docker Desktop
+
+open wsl2 terminal and cd to the path of 'frappe_docker'
 
 run below commands on wsl2
 `export APPS_JSON_BASE64=$(base64 -w 0 apps.json)`
 
 `export GIT_AUTH_TOKEN=<get it from Amber>`
 
+Choose the appropriate build command based on your container runtime and desired image type. This command builds the `layered` image with the custom `apps.json` you created.
+If you have created this image, you can find it on Docker Desktop.
 ```sh
 docker build \
  --no-cache \
  --build-arg=APPS_JSON_BASE64=$APPS_JSON_BASE64 \
  --build-arg=GIT_AUTH_TOKEN=$GIT_AUTH_TOKEN \
- --tag=custom:2 \
+ --tag=custom:3 \
  --file=images/custom/Containerfile .
 ```
 
+if you  see compose.custom.yaml in your frappe_docker repo, skip below 'docker compose' command
 ```sh
 docker compose --env-file custom.env \
     -f compose.yaml \
@@ -29,6 +34,11 @@ docker compose --env-file custom.env \
 
 git clone all apps repos to `/mnt/c/Users/Qiany/erp/apps/`
 you can change this path on compose.custom.yaml for you local, so that you can update your code and directly reflect on the container and browser.
+
+start all containers with a single command:
+```bash
+docker compose -f compose.custom.yaml up -d
+```
 
 build site “uptrend” or any name you like with AWS database _d1cf44f2f8d5d74e
 you can ignore the exception `Exception: Database _d1cf44f2f8d5d74e already exists` because we are going to use an existing database to keep the DB consistency for every developer.
